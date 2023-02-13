@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ki.jun091tp.member.MemberMapper">
+	<select id = "getMemberById" parameterType="com.ki.jun091tp.member.Member" resultType="com.ki.jun091tp.member.Member">
+		select * from tp_member where u_id = #{u_id}
+	</select>
+	<!-- 닉네임 중복체크에 쓸 정보불러오기 -->
+	<select id="getMemberByNickname" parameterType="com.ki.jun091tp.member.Member" resultType="com.ki.jun091tp.member.Member">
+		select * from tp_member where u_nickname = #{u_nickname}
+	</select>
+	<!-- 카카오 회원가입 -->
+	<insert id="kakaoLogin" parameterType="com.ki.jun091tp.member.Member">
+		insert into tp_member values(#{u_id}, null, null, null, #{u_email}, null, null)
+	</insert>
+	<insert id="signMember" parameterType="com.ki.jun091tp.member.Member">
+		insert into tp_member values(#{u_id}, #{u_pw}, #{u_name},#{u_nickname},#{u_email},#{u_tel},#{u_addr})
+	</insert>
+	<delete id="deleteMember" parameterType="com.ki.jun091tp.member.Member">
+		delete from tp_member where u_id = #{u_id}
+	</delete>
+	<update id="updateMember" parameterType="com.ki.jun091tp.member.Member">
+		update tp_member set u_pw = #{u_pw}, u_name = #{u_name},u_nickname=#{u_nickname}, u_email=#{u_email}, u_tel =#{u_tel}, u_addr = #{u_addr} where u_id = #{u_id}
+	</update>
+	<!-- 아이디 찾기 (이름,이메일을 통해) -->
+	<select id="findMemberID" parameterType="com.ki.jun091tp.member.Member" resultType="com.ki.jun091tp.member.Member">
+		select u_id from tp_member where u_name = #{u_name} and u_email=#{u_email}
+	</select>
+	<!-- 비밀번호 찾기 (아이디,폰번호를 통해) -->
+	<select id="findMemberPW" parameterType="com.ki.jun091tp.member.Member" resultType="com.ki.jun091tp.member.Member">
+		select u_pw from tp_member where u_id=#{u_id} and u_tel=#{u_tel}
+	</select>
+	<!-- 비밀번호 변경 (마이페이지 아님!) -->
+   <update id="changePW" parameterType="com.ki.jun091tp.member.Member">
+      update tp_member set u_pw = #{u_pw} where u_id = #{u_id }
+   </update>
+</mapper>

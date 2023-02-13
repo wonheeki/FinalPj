@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ki.jun091tp.map.MapMapper">
+	<select id="getAllFac"
+		resultType="com.ki.jun091tp.map.Facilities">
+		select * from facilities order by f_no
+	</select>
+	<select id="getAllSub" resultType="com.ki.jun091tp.map.Subway">
+		select * from subway order by
+		sub_no
+	</select>
+	<select resultType="com.ki.jun091tp.map.Charge"
+		id="getAllCharge">select * from charge order by ch_no </select>
+	<!-- 지하철 상세정보 -->
+	<select id="getThisSub" resultType="com.ki.jun091tp.map.Subway">
+         select * from subway where sub_no=#{sub_no}
+    </select>
+    <!-- 공공시설 상세정보 -->  
+    <select id="detailFac" parameterType="com.ki.jun091tp.map.Facilities" resultType="com.ki.jun091tp.map.Facilities"> 
+		select * from facilities where f_no = #{f_no} 
+	</select>
+	<!-- 충전소 상세정보 -->
+	<select id="detailChar" parameterType="com.ki.jun091tp.map.Charge" resultType="com.ki.jun091tp.map.Charge">
+		select * from charge where ch_no = #{ch_no} 
+	</select>
+	<!--Fac 즐겨찾기 추가 -->
+	<insert id="insertBk_Fac" parameterType="com.ki.jun091tp.map.BookMark">
+		insert into bookmark values(bk_no_seq.nextval,#{u_id},#{sub_no, jdbcType=INTEGER},#{f_no},#{ch_no, jdbcType=INTEGER})
+	</insert>
+	<!--Sub 즐겨찾기 추가 -->
+	<insert id="insertBk_Sub" parameterType="com.ki.jun091tp.map.BookMark">
+		insert into bookmark values(bk_no_seq.nextval,#{u_id},#{sub_no},#{f_no, jdbcType=INTEGER},#{ch_no, jdbcType=INTEGER})
+	</insert>
+	<!--Charge 즐겨찾기 추가 -->
+	<insert id="insertBk_Charge" parameterType="com.ki.jun091tp.map.BookMark">
+		insert into bookmark values(bk_no_seq.nextval,#{u_id},#{sub_no, jdbcType=INTEGER},#{f_no, jdbcType=INTEGER},#{ch_no})
+	</insert>
+	<!-- 마이페이지에서 지하철 즐겨찾기 출력  -->
+   <select id="getAllBk" parameterType="com.ki.jun091tp.map.Subway" resultType="com.ki.jun091tp.map.Subway">
+      select sub_no,sub_line_name,sub_station from subway where sub_no in (select distinct sub_no from bookmark where u_id =#{u_id})
+   </select>
+	<!-- 충전소 즐겨찾기 삭제 -->
+	<delete id="deleteBk" parameterType="com.ki.jun091tp.map.BookMark">
+		delete from bookmark where ch_no = #{ch_no} and u_id = #{u_id}
+	</delete>
+	<!-- 공공시설 즐겨찾기 삭제 -->
+	<delete id="deleteBk2" parameterType="com.ki.jun091tp.map.BookMark">
+		delete from bookmark where f_no = #{f_no} and u_id = #{u_id}
+	</delete>
+	<!-- 지하철 즐겨찾기 삭제 -->
+	<delete id="deleteBk3" parameterType="com.ki.jun091tp.map.BookMark">
+		delete from bookmark where sub_no = #{sub_no} and u_id = #{u_id}
+	</delete>
+	<!-- 마이페이지에서 즐겨찾기 시설 출력  -->
+	<select id="getAllBk2" parameterType="com.ki.jun091tp.map.Facilities" resultType="com.ki.jun091tp.map.Facilities">
+	   select f_no,f_fclt_nm from facilities where f_no in (select distinct f_no from bookmark where u_id =#{u_id})
+	</select>
+	<!-- 마이페이지에서 충전소 즐겨찾기 출력  -->
+   <select id="getAllBk3" parameterType="com.ki.jun091tp.map.Charge" resultType="com.ki.jun091tp.map.Charge">
+      select ch_no,ch_FCLTYNM from charge where ch_no in (select distinct ch_no from bookmark where u_id =#{u_id})
+   </select>
+   <!-- 즐겨찾기 별찍기 -->
+   <select id="starBk" parameterType="com.ki.jun091tp.map.BookMark" resultType="com.ki.jun091tp.map.BookMark">
+      select * from bookmark where u_id=#{u_id} and sub_no =#{sub_no}
+   </select>
+   <!-- 충전소 검색 -->
+   <select id="searchCharge" parameterType="com.ki.jun091tp.map.Charge" resultType="com.ki.jun091tp.map.Charge">
+		select * from charge where ch_FCLTYNM like '%'||#{ch_FCLTYNM}||'%'
+	</select>
+	<!-- 시설 검색 -->
+	<select resultType="com.ki.jun091tp.map.Facilities" id="searchFac" parameterType="com.ki.jun091tp.map.Facilities">
+		select * from facilities where f_fclt_nm like '%'||#{f_fclt_nm}||'%' 
+	</select>
+	<!-- 지하철 검색 -->
+	<select resultType="com.ki.jun091tp.map.Subway" id="searchSub" parameterType="com.ki.jun091tp.map.Subway">
+		select * from subway where sub_station like '%'||#{sub_station}||'%' 
+	</select>
+</mapper>

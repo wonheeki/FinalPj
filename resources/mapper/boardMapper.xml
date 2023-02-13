@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ki.jun091tp.board.BoardMapper">
+	<!-- 글 쓰기 -->
+	<insert id="writeBoard" parameterType="com.ki.jun091tp.board.Board">
+		insert into tp_board values(b_no_seq.nextval, #{b_title}, #{b_txt}, #{u_id}, sysdate, 0)
+	</insert>
+	<select id="getAllBoardCount" resultType="java.lang.Integer">
+		select count(*) from
+		tp_board, tp_member where b_writer = u_id
+	</select>
+	<select id="getSearchBoardCount"
+		parameterType="com.ki.jun091tp.board.BoardSelector"
+		resultType="java.lang.Integer">
+		<!-- 글을 등록한 사람과 로그인한 사람이 같으면서 내용이나 글쓴이로 검색했을 때 나오는 모든 게시글의 개수 -->
+		select count(*) from tp_board, tp_member
+		where b_writer = u_id and (b_txt like '%'||#{search}||'%' or u_id like
+		'%'||#{search}||'%')
+
+	</select>
+	<select id="getAllBoard" parameterType="com.ki.jun091tp.board.Board" resultType="com.ki.jun091tp.board.Board">
+		select * from tp_board where b_no = #{b_no}
+	</select>
+	
+	<!-- 최신순 정렬 -->
+	<select id="getBoard"
+		parameterType="com.ki.jun091tp.board.BoardSelector"
+		resultType="com.ki.jun091tp.board.Board">
+		select * from(
+		select rownum as rn, b_no, b_title, b_txt,
+		b_writer, b_regDate,
+		b_readCounter from(
+		select * from TP_BOARD order by
+		b_regDate desc))
+		where rn &gt;= #{start} and
+		rn &lt;= #{end}
+	</select>
+	<!-- 조회순 정렬 -->
+	<select id="count" resultType="com.ki.jun091tp.board.Board">
+		select * from (
+		select rownum as
+		rn, b_no, b_title, b_writer, b_regDate, b_readCounter from(
+		select *
+		from TP_BOARD order by b_readCounter desc))
+		where rn &gt;=
+		#{start} and
+		rn &lt;= #{end}
+	</select>
+	<select id="DetailBoard"
+		parameterType="com.ki.jun091tp.board.Board"
+		resultType="com.ki.jun091tp.board.Board">
+		select b_no, b_title, b_writer, b_txt, b_regDate from
+		tp_board where b_no = #{b_no}
+	</select>
+		<update id="readCounterBoard"
+		parameterType="com.ki.jun091tp.board.Board">
+		update TP_BOARD set b_readCounter = b_readCounter + 1
+		where b_no = #{b_no}
+	</update>
+	<!-- 마이페이지 내가 쓴 글 보기 -->
+	<select id ="getMyBoard" parameterType="com.ki.jun091tp.board.Board" resultType="com.ki.jun091tp.board.Board">
+      	select rownum as rn, b_no ,b_title, b_writer, b_regDate from tp_board where b_writer =(select u_id from tp_member where u_id = #{u_id})   
+   </select>
+	<!-- 게시글 수정 -->
+	<update id="UpdateBoard" parameterType="com.ki.jun091tp.board.Board">
+		update tp_board set b_title = #{b_title}, b_txt = #{b_txt} where b_no = #{b_no}
+	</update>
+	<!-- 게시글 삭제 -->
+	<delete id="DeleteBoard" parameterType="com.ki.jun091tp.board.Board">
+		delete from tp_board where b_no = #{b_no}
+	</delete>
+	<!-- 댓글쓰기 -->
+	<insert parameterType="com.ki.jun091tp.board.Comment"
+		id="writeComment">insert into tp_comment
+		values(c_no_seq.nextval,#{b_no},#{c_writer},sysdate, #{c_txt})
+	</insert>
+	<select id="getComment" parameterType="com.ki.jun091tp.board.Board" resultType="com.ki.jun091tp.board.Comment">
+		select * from tp_comment where b_no = #{b_no}
+	</select>
+	<!-- 댓글 수정 -->
+	<update id="updateComment" parameterType="com.ki.jun091tp.board.Comment">
+		update tp_comment set c_txt=#{c_txt} where c_no = #{c_no}
+	</update>
+	<!-- 댓글 삭제 -->
+	<delete id="deleteComment" parameterType="com.ki.jun091tp.board.Comment">
+		delete from tp_comment where c_no = #{c_no}
+	</delete>
+</mapper>
